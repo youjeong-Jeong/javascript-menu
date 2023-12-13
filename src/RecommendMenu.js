@@ -4,20 +4,40 @@ import OutputView from "./OutputView.js";
 import ERROR from "./ERROR.js";
 import MENU from "./MENU.js";
 
+
 class RecommendMenu {
   #coachs;
   #coachsInedibleMenus;
+  #menuNumber;
+  #recommendMenus;
 
   constructor() {
     this.#coachsInedibleMenus = [];
+    this.#menuNumber = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+    this.#recommendMenus = [];
   }
 
   async start() {
     OutputView.printStartMessage();
     this.#coachs = await this.userCoachInput();
     await this.userInedibleMenuInput();
-    const category = MENU.MENUS[(Random.pickNumberInRange(1, 5) - 1)];
-    console.log(category);
+    //const category = (Random.pickNumberInRange(1, 5) - 1);
+    const category = 0;
+    this.recommendMenuForCoach(category);
+    console.log(this.#recommendMenus);
+  }
+
+  recommendMenuForCoach(category) {
+    this.#coachs.forEach((coach, idx) => {
+      while (true) {
+        const number = Random.shuffle(this.#menuNumber)[0];
+        const recommendMenu = MENU.MENUS[category][number];
+        if (!this.#coachsInedibleMenus[idx].includes(recommendMenu)) {
+          this.#recommendMenus.push([recommendMenu]);
+          return;
+        }
+      }
+    })
   }
 
   async userCoachInput() {
@@ -48,7 +68,7 @@ class RecommendMenu {
     while (true) {
       try {
         const inputInedibleMenu = await InputView.readInedibleMenu(coach);
-        return this.validateMenuInput(inputInedibleMenu);       
+        return this.validateMenuInput(inputInedibleMenu);
         //console.log(this.#coachsInedibleMenus);
       } catch (error) {
         OutputView.printError(error);
@@ -57,7 +77,7 @@ class RecommendMenu {
   }
 
   validateMenuInput(input) {
-    if(this.validateMenuIsEmpty(input)) return;   
+    if (this.validateMenuIsEmpty(input)) return;
     const inedibleMenu = input.split(',');
     this.validateMenuCount(inedibleMenu); // 2개이상인지 확인
     this.validateMenu(inedibleMenu);
@@ -88,16 +108,16 @@ class RecommendMenu {
   validateMenu(menus) {
     if (menus.length === 1) {
       this.validateInedibleMenu(menus[0]);
-      this.#coachsInedibleMenus.push([menus]);
+      this.#coachsInedibleMenus.push(menus);
       return;
-    } 
+    }
     if (menus.length === 2) {
       console.log(menus);
       menus.forEach(menu => {
         this.validateIsEmpty(menu);
         this.validateInedibleMenu(menu);
       });
-      this.#coachsInedibleMenus.push([menus]);
+      this.#coachsInedibleMenus.push(menus);
     }
   }
 
