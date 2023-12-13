@@ -29,14 +29,37 @@ class RecommendMenu {
     this.#category.push(category);
     this.recommendMondayMenu(category);
     this.recommendWeekMenu();
+    console.log(this.#category);
+    console.log(this.#recommendMenus);
+    this.printResult();
+  }
+
+  printResult() {
+    OutputView.printResultMessage();
+    OutputView.printResult(this.#category, this.#coachs, this.#recommendMenus);
+    OutputView.printEndMessage();
   }
 
   recommendWeekMenu() {
     this.#day.forEach(() => {
-      while(true) {
+      while (true) {
         const category = (Random.pickNumberInRange(1, 5) - 1);
-        if(validateDuplicateCategory(category)) {
+        if (this.validateDuplicateCategory(category)) {
+          this.#category.push(category);
           this.recommendMenuForCoach(category);
+          return;
+        }
+      }
+    })
+  }
+
+  recommendMenuForCoach(category) {
+    this.#coachs.forEach((coach, idx) => {
+      while (true) {
+        const number = Random.shuffle(this.#menuNumber)[0];
+        const recommendMenu = MENU.MENUS[category][number];
+        if (!this.#coachsInedibleMenus[idx].includes(recommendMenu) && !this.#recommendMenus[idx].includes(recommendMenu)) {
+          this.#recommendMenus[idx].push(recommendMenu);
           return;
         }
       }
@@ -47,22 +70,10 @@ class RecommendMenu {
     const categoryList = [...this.#category];
     categoryList.push(category);
     const uniqueValues = [...new Set(categoryList)];
-    if(uniqueValues.length < categoryList.length - 1) return false;
+    if (uniqueValues.length < categoryList.length - 1) return false;
     return true;
   }
 
-  recommendMenuForCoach(category) {
-    this.#coachs.forEach((coach, idx) => {
-      while (true) {
-        const number = Random.shuffle(this.#menuNumber)[0];
-        const recommendMenu = MENU.MENUS[category][number];
-        if (!this.#coachsInedibleMenus[idx].includes(recommendMenu)) {
-          this.#recommendMenus.push([recommendMenu]);
-          return;
-        }
-      }
-    })
-  }
 
   recommendMondayMenu(category) {
     this.#coachs.forEach((coach, idx) => {
@@ -107,7 +118,6 @@ class RecommendMenu {
       try {
         const inputInedibleMenu = await InputView.readInedibleMenu(coach);
         return this.validateMenuInput(inputInedibleMenu);
-        //console.log(this.#coachsInedibleMenus);
       } catch (error) {
         OutputView.printError(error);
       }
@@ -119,8 +129,6 @@ class RecommendMenu {
     const inedibleMenu = input.split(',');
     this.validateMenuCount(inedibleMenu); // 2개이상인지 확인
     this.validateMenu(inedibleMenu);
-
-    console.log(this.#coachsInedibleMenus);
   }
 
   validateNotInMenuList(menu) {
@@ -150,7 +158,6 @@ class RecommendMenu {
       return;
     }
     if (menus.length === 2) {
-      console.log(menus);
       menus.forEach(menu => {
         this.validateIsEmpty(menu);
         this.validateInedibleMenu(menu);
