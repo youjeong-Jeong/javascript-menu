@@ -10,21 +10,45 @@ class RecommendMenu {
   #coachsInedibleMenus;
   #menuNumber;
   #recommendMenus;
+  #day;
+  #category;
 
   constructor() {
     this.#coachsInedibleMenus = [];
     this.#menuNumber = [0, 1, 2, 3, 4, 5, 6, 7, 8];
     this.#recommendMenus = [];
+    this.#day = ['화', '수', '목', '금'];
+    this.#category = [];
   }
 
   async start() {
     OutputView.printStartMessage();
     this.#coachs = await this.userCoachInput();
     await this.userInedibleMenuInput();
-    //const category = (Random.pickNumberInRange(1, 5) - 1);
-    const category = 0;
-    this.recommendMenuForCoach(category);
-    console.log(this.#recommendMenus);
+    const category = (Random.pickNumberInRange(1, 5) - 1);
+    this.#category.push(category);
+    this.recommendMondayMenu(category);
+    this.recommendWeekMenu();
+  }
+
+  recommendWeekMenu() {
+    this.#day.forEach(() => {
+      while(true) {
+        const category = (Random.pickNumberInRange(1, 5) - 1);
+        if(validateDuplicateCategory(category)) {
+          this.recommendMenuForCoach(category);
+          return;
+        }
+      }
+    })
+  }
+
+  validateDuplicateCategory(category) {
+    const categoryList = [...this.#category];
+    categoryList.push(category);
+    const uniqueValues = [...new Set(categoryList)];
+    if(uniqueValues.length < categoryList.length - 1) return false;
+    return true;
   }
 
   recommendMenuForCoach(category) {
@@ -39,6 +63,20 @@ class RecommendMenu {
       }
     })
   }
+
+  recommendMondayMenu(category) {
+    this.#coachs.forEach((coach, idx) => {
+      while (true) {
+        const number = Random.shuffle(this.#menuNumber)[0];
+        const recommendMenu = MENU.MENUS[category][number];
+        if (!this.#coachsInedibleMenus[idx].includes(recommendMenu)) {
+          this.#recommendMenus.push([recommendMenu]);
+          return;
+        }
+      }
+    })
+  }
+
 
   async userCoachInput() {
     while (true) {
