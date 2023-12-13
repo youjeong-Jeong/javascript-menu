@@ -1,3 +1,4 @@
+import { Random } from "@woowacourse/mission-utils";
 import InputView from "./InputView.js";
 import OutputView from "./OutputView.js";
 import ERROR from "./ERROR.js";
@@ -14,7 +15,9 @@ class RecommendMenu {
   async start() {
     OutputView.printStartMessage();
     this.#coachs = await this.userCoachInput();
-    this.userInedibleMenuInput();
+    await this.userInedibleMenuInput();
+    const category = MENU.MENUS[(Random.pickNumberInRange(1, 5) - 1)];
+    console.log(category);
   }
 
   async userCoachInput() {
